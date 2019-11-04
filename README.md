@@ -168,7 +168,7 @@ Tournament:
 
 <br>
 
-
+<!-- 
 # Server / Backend
 
 
@@ -267,4 +267,4 @@ Art model
 
 ### Slides
 
-[Slides Link](http://slides.com)
+[Slides Link](http://slides.com) -->
