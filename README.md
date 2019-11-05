@@ -235,7 +235,7 @@ Art model
 | GET | /auth/me | | 201 | 404 | get my user from session |
 | POST | /auth/signup | {name, email, password} | 201 | 404 | Checks if fields not empty (422) and user not exists (409), then create user with encrypted password, and store user in session |
 | POST | /auth/login | {username, password} | 200 | 401 | Checks if fields not empty (422), if user exists (404), and if password challenges (404), then stores user in session |
-| POST | /auth/logout | (empty) | 204 | 400 | Logs out the user |
+| POST | /auth/logout | | 204 | 400 | Logs out the user |
 | GET | /challenges | | | 400 | Show all challenges |
 | GET | /challenges/:challengeId | {challengeId} | | | get challenge |
 | PUT | /challenges/:challengeId/edit/ | {challengeUpdated} | 200 | 400 | edit challenge |
@@ -247,7 +247,7 @@ Art model
 | GET | /arts/challenge/:challengeId | {challengeId} | | | get arts of a challenge |
 | GET | arts/challenge/:challengeId/artsVoted | {challengeId} | | | get my arts voted of a challenge |
 | GET | /arts//:userId/challenge/:challengeId | {challengeId, userId} | | | get art of a challenge and user |
-| POST | /arts/add | {} | | | add one art |
+| POST | /arts/add | {newArt} | | | add one art |
 | PUT | /arts/:artId/update | {artId, artUpdated} | | | edit art (update image) |
 | PUT | /arts/:artId/addVote | {artId, artUpdated} | | | add vote to art |
 | DELETE | /arts/:challengeId/delete | {challengeId} | 201 | 400 | delete empty arts when voting |
