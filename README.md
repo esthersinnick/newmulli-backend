@@ -136,7 +136,7 @@ Tournament:
   - Timer
   - UploadArt
   - ArtsList
-        - ArtCard
+    - ArtCard
   - UserVotes
   - Top3
   - ChallengesSimpleList
@@ -168,7 +168,7 @@ Tournament:
 
 <br>
 
-<!-- 
+
 # Server / Backend
 
 
@@ -179,14 +179,15 @@ User model
 ```javascript
 {
   isAdmin:boolean,
+  avatar:String
   name:String,
-  username:String ,
+  username:String , // required & unique
   email:String, // required & unique
   password:String, // required
-  instagram:String,
-  website:String,
-  avatar:String
-  
+  social:{
+    instagram:String,
+    website:String,
+  }  
 }
 ```
 
@@ -194,15 +195,17 @@ Challenge model
 
 ```javascript
  {
-   name:String,
-   startDate:String,
-   endDate: String,
-   startVotingDate:String,
-   endVotingDate: String,
-   description: String,
-   creator:  {type: Schema.Types.ObjectId,ref:'User'},
-   illustrators: Number,
-   totalVotes: Number
+  name:String,
+  startDate:Date,
+  endDate: Date,
+  startVotingDate:Date,
+  endVotingDate: Date,
+  description: String,
+  creator:  {type: Schema.Types.ObjectId,ref:'User'},
+  illustrators: Number,
+  totalVotes: Number,
+  category: String,
+  status: String [draft, active, voting, closed],
  }
 ```
 
@@ -215,37 +218,40 @@ Art model
   image: String, 
   votes: [{type: Schema.Types.ObjectId,ref:'User'}],
   rankingPosition: Number,
-  //uploadDate: String
+  uploadDate: Date
 }
 ```
 
-
 <br>
-
 
 ## API Endpoints (backend routes)
 
-| HTTP Method | URL                                           | Request Body                 | Success status | Error Status | Description                                                  |
-| ----------- | --------------------------------------------- | ---------------------------- | -------------- | ------------ | ------------------------------------------------------------ |
-| GET         | /dashboard/:userId                            | {userId}                     |                | 400          | show user data, his arts and the challenges has played          |
-| GET         | /dashboard                                    | Saved session                | 200            | 404          | Check if user is logged in and return profile page           |
-| GET         | /profile                                      | Saved session                |                |              | show a form filled with the user info                        |
-| PUT         | /profile/edit                                 | {userUpdate}                 |                |              | edit user data                                                   |
-| PUT         | /profile/password/edit                        | {newPassword}                |                |              | edit password                                                    |
-| POST        | /auth/signup                                  | {name, email, password}      | 201            | 404          | Checks if fields not empty (422) and user not exists (409), then create user with encrypted password, and store user in session |
-| POST        | /auth/login                                   | {username, password}         | 200            | 401          | Checks if fields not empty (422), if user exists (404), and if password challenges (404), then stores user in session |
-| POST        | /auth/logout                                  | (empty)                      | 204            | 400          | Logs out the user                                            |
-| GET         | /challenges                                   |                              |                | 400          | Show all challenges                                             |
-| POST        | /challenges/add                               | {}                           | 201            | 400          | Create and save a new challenge                                  |
-| GET         | /challenges/:challengeId                      | {id}                         |                |              | Show specific challenge                                          |
-| GET         | /challenges/:challengeId/edit/                |                              |                |              | get info and fill form                                       |
-| PUT         | /challenges/:challengeId/edit/                | {challengeUpdated}           | 200            | 400          | edit challenge                                                   |
-| DELETE      | /challenges/:challengeId/delete               | {challengeId}                | 201            | 400          | delete challenge                                                 |
-| GET         | /arts/                                        | {}                           |                |              | add art                                          |
-| GET         | /arts/:userId                                 | {userId}                     |                |              | add art                                          |
-| GET         | /arts/:challengeId                            | {challengeId}                |                |              | add art                                          |
-| POST        | /arts/add                                     | {}                           |                |              | add art                                          |
-| PUT         | /arts/:artId/update                           | {artId, artUpdated}          |                |              | edit art (update image)                                      |
+| HTTP Method | URL | Request Body | Success status | Error Status | Description |
+| - | - | - | - | - | - |
+| GET | /user | Saved session | 200 | 404 | get currentUser data, arts and challenges |
+| GET | /user/:userId | {userId} | 200 | 400 | get other user data, his arts and the challenges has joined |
+| PUT | /user/edit | {userUpdate} | | | edit user data |
+| PUT | /user/password/edit | {newPassword} | | | edit password |
+| GET | /auth/me | | 201 | 404 | get my user from session |
+| POST | /auth/signup | {name, email, password} | 201 | 404 | Checks if fields not empty (422) and user not exists (409), then create user with encrypted password, and store user in session |
+| POST | /auth/login | {username, password} | 200 | 401 | Checks if fields not empty (422), if user exists (404), and if password challenges (404), then stores user in session |
+| POST | /auth/logout | (empty) | 204 | 400 | Logs out the user |
+| GET | /challenges | | | 400 | Show all challenges |
+| GET | /challenges/:challengeId | {challengeId} | | | get challenge |
+| PUT | /challenges/:challengeId/edit/ | {challengeUpdated} | 200 | 400 | edit challenge |
+| POST | /challenges/add | | 201 | 400 | Create and save a new challenge |
+| DELETE | /challenges/:challengeId/delete | {challengeId} | 201 | 400 | delete challenge |
+| GET | /arts/ | | | | get all arts |
+| GET | /arts/myArts | Saved session | | | get all arts of currentUser |
+| GET | /arts/:userId | {userId} | | | get all arts of user |
+| GET | /arts/challenge/:challengeId | {challengeId} | | | get arts of a challenge |
+| GET | arts/challenge/:challengeId/artsVoted | {challengeId} | | | get my arts voted of a challenge |
+| GET | /arts//:userId/challenge/:challengeId | {challengeId, userId} | | | get art of a challenge and user |
+| POST | /arts/add | {} | | | add one art |
+| PUT | /arts/:artId/update | {artId, artUpdated} | | | edit art (update image) |
+| PUT | /arts/:artId/addVote | {artId, artUpdated} | | | add vote to art |
+| DELETE | /arts/:challengeId/delete | {challengeId} | 201 | 400 | delete empty arts when voting |
+
 
 
 <br>
@@ -255,16 +261,10 @@ Art model
 
 ### Trello/Kanban
 
-[Trello board](https://trello.com/b/gpSU0hrj/mulli)
+[Trello board](https://trello.com/b/uRJHIIsg/new-mulli)
 
 ### Git
 
-[Client repository Link](https://github.com/esthersinnick/mulli-frontend)
+[Client repository Link](https://github.com/esthersinnick/newmulli-frontend)
 
-[Server repository Link](https://github.com/esthersinnick/mulli-backend)
-
-[Deployed App Link](http://heroku.com)
-
-### Slides
-
-[Slides Link](http://slides.com) -->
+[Server repository Link](https://github.com/esthersinnick/newmulli-backend)
